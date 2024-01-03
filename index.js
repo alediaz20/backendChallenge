@@ -94,13 +94,32 @@ app.get("/tareas/:id", async (req, res) => {
 
 
 // Summary
-app.get("/summary", async (req,res) => {
-    const summary = await prisma.tareas.groupBy({
+app.get('/summary', async (req, res) => {
+    try {
+    // Obtengo todas las tareas
+    const todasLasTareas = await prisma.tareas.findMany();
+    
+    // Obtengo el total de tareas
+    const totalTareas = todasLasTareas.length;
+    
+    //Obtener cantidad de tareas por estado
+    const tareasPorEstado = await prisma.tareas.groupBy({
         by: ['estado'],
-    })
-    res.send(summary);
-})
+        _count: {id: true },
+    });
 
+    // Calculo los porcentajes 
+    const porcentajes = {};
+    tareasPorEstado.forEach(tarea => {
+        porcentajes[tarea.estado] = tarea._count.id / totalTareas 
+    });
+
+    // Devuelvo porcentajes 
+    res.send(porcentajes);
+    } catch (error) {
+        console.error('Error al obtener el resumen de tareas:', error);
+    }
+});
 
 
 
