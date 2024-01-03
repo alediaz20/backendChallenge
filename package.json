@@ -1,0 +1,32 @@
+{
+  "name": "backendchallenge",
+  "version": "1.0.0",
+  "description": "API REST ",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alediaz20/backendChallenge.git"
+  },
+  "author": "Alejandro Diaz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alediaz20/backendChallenge/issues"
+  },
+  "homepage": "https://github.com/alediaz20/backendChallenge#readme",
+  "devDependencies": {
+    "prisma": "^5.7.1"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.7.1",
+    "fastify": "^4.25.2",
+    "fastify-cli": "^6.0.0"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  }
+}
