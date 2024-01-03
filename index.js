@@ -33,11 +33,12 @@ app.get("/usuarios/:id", async (req, res) => {
 //Update
 app.put("/usuarios/:id", async (req, res) => {
     const { id } = req.params;
-    const { nombre } = req.body;
-    const usuario = usuarios.update({
+    const { nombre , tareas} = req.body;
+    const usuario = prisma.usuarios.update({
         where: { id: Number(id) },
         data: {
-        nombre,
+        nombre: nombre,
+        tareas: tareas
         },
     });
     res.send(usuario);
@@ -55,8 +56,6 @@ app.delete("/usuarios/:id", async (req, res) => {
         res.send("No se encontro el usuario");
     }
 });
-
-
 
 
 //Tareas
@@ -86,11 +85,39 @@ app.get("/tareas/:id", async (req, res) => {
     res.send(tareas);
 });
 
-//Update
+//Asignar tarea a usuario
+app.put("/tareas/:tareaId/usuarios/:usuarioId", async (req,res)=>{
+    const { tareaId, usuarioId } = req.params;
 
+    //Valido que la tarea no este asignada
+    const EstadoTarea = await prisma.tareas.findFirst({
+        where: {id: Number(tareaId)}
+    });
+    if(EstadoTarea.estado != "Sin asignar"){
+        return res.code(400).send({ error: 'No es posible asignar la tarea, se encuentra en estado: ' + EstadoTarea.estado });
+    }
 
+    //Valido que el usuario no tenga 3 o mas tareas asignadas
+    const tareasUsuario = await prisma.tareas.count({
+        where: {usuarioId: Number(usuarioId) }
+    });
+    if(tareasUsuario >= 3){
+        return res.code(400).send({ error: 'No es posible asignar la tarea, el usuario alcanzó el límite de tareas asignadas'});
+    }
 
-
+    // Actualizo la tarea
+    const tareaActualizada = await prisma.tareas.update({
+        where: {id: Number(tareaId)},
+        data:{ usuarioId: Number(usuarioId),
+                estado: "Asignada"        
+        },
+        include: {
+            usuario: true
+        }
+    });
+    
+    return res.send(tareaActualizada);
+});
 
 
 // Summary
