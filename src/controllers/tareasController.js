@@ -1,4 +1,5 @@
 import prisma from '../services/prismaService.js'
+const estadosPermitidos = ["Sin asignar", "Asignada", "Iniciada", "Finalizada"];
 
 //Create
 export const createTarea = async (req, res) => {
@@ -45,15 +46,32 @@ export const getTarea = async (req, res) => {
 //Modificar tarea
 export const updateTarea = async (req, res) => {
     const { id } = req.params;
-    const { texto, descripcion } = req.body;
+    const { texto, descripcion, estado } = req.body;
+    let tarea;
+    if(!estadosPermitidos.includes(estado)){
+        res.send("El estado ingresado no es válido");
+    }
     try{
-        const tarea = await prisma.tareas.update({
-            where: { id: Number(id) },
-            data: {
-                texto,
-                descripcion
-            },
-        });
+        if (estado === "Sin asignar"){
+            tarea = await prisma.tareas.update({
+                where: { id: Number(id) },
+                data: {
+                    texto,
+                    descripcion,
+                    estado: estado,
+                    usuarioId: null 
+                },
+            });
+        }else{
+            tarea = await prisma.tareas.update({
+                where: { id: Number(id) },
+                data: {
+                    texto,
+                    descripcion,
+                    estado: estado,
+                },
+            });
+        }
         res.send(tarea);
     }catch(e){
         res.send("No se encontro la tarea con id " + id);
